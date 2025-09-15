@@ -2,6 +2,7 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SurveyPage from './pages/SurveyPage';
 import ResultsPage from './pages/ResultsPage';
+import CreateSurveyPage from './pages/CreateSurveyPage';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/survey/:id" element={<SurveyPage />} />    
         <Route path="/survey/:id/results" element={<ResultsPage />} />
+        <Route path="/create" element={<CreateSurveyPage />} />
       </Routes>
     </Router>
   );
