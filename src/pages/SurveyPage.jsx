@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSurveyById, submitSurveyResponse } from "../api/survey";
 
-function SurveyPage() {
+function SurveyPage({ currentUser }) { // ✅ recevoir currentUser en props
   const { id } = useParams();
   const navigate = useNavigate();
   const [survey, setSurvey] = useState(null);
-  const [message, setMessage] = useState(""); // ✅ état pour les messages
+  const [message, setMessage] = useState(""); 
 
   useEffect(() => {
     getSurveyById(id).then(setSurvey);
@@ -14,8 +14,13 @@ function SurveyPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
 
+    if (!currentUser) {
+      setMessage("❌ Vous devez être connecté pour répondre.");
+      return;
+    }
+
+    const formData = new FormData(e.target);
     const answers = [];
 
     formData.forEach((value, key) => {
@@ -31,7 +36,7 @@ function SurveyPage() {
 
     try {
       const res = await submitSurveyResponse(id, {
-        userId: 1, // ⚠️ à remplacer plus tard
+        userId: currentUser.id, // ✅ utiliser l'utilisateur connecté
         answers,
       });
 
@@ -41,10 +46,9 @@ function SurveyPage() {
         setMessage("✅ Merci pour vos réponses !");
       }
 
-      // attendre 2s puis retour accueil
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      // Redirection vers l'accueil après 2s
+      setTimeout(() => navigate("/"), 2000);
+
     } catch (err) {
       console.error(err);
       setMessage("❌ Une erreur est survenue. Réessayez.");
@@ -64,9 +68,7 @@ function SurveyPage() {
         <form onSubmit={handleSubmit}>
           {survey.questions.map((q) => (
             <div key={q.id} style={{ marginBottom: "20px" }}>
-              <p>
-                <strong>{q.text}</strong>
-              </p>
+              <p><strong>{q.text}</strong></p>
 
               {q.type === "SCALE" && (
                 <input
