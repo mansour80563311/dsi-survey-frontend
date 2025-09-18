@@ -11,10 +11,13 @@ import AdminResultsPage from './pages/AdminResultsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar'; 
 
+
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null); // ⚡ état global de l'utilisateur
 
   return (
+    
     <Router>
       <Navbar currentUser={currentUser} setCurrentUser={setCurrentUser} />
       <Routes>

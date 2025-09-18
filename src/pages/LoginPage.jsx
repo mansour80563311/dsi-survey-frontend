@@ -8,33 +8,28 @@ function LoginPage({ setCurrentUser }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setMessage(""); // réinitialiser le message
+    setMessage("");
 
     try {
-      // Appel backend pour login
       const res = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json(); // lire le corps JSON UNE seule fois
+      const data = await res.json();
 
       if (!res.ok) {
-        // Si le backend renvoie une erreur
         setMessage(`❌ ${data.error || "Erreur de connexion"}`);
         return;
       }
 
-      // Utilisateur trouvé
       console.log("Utilisateur connecté:", data);
-      setCurrentUser(data); // stocker l'utilisateur globalement
+      setCurrentUser(data);
       setMessage(`✅ Bienvenue ${data.name} (${data.role})`);
 
-      // Redirection selon rôle
       if (data.role === "admin") navigate("/admin");
-      else navigate("/"); // page d'accueil pour les utilisateurs
-
+      else navigate("/");
     } catch (err) {
       console.error(err);
       setMessage("❌ Impossible de contacter le serveur");
@@ -42,22 +37,38 @@ function LoginPage({ setCurrentUser }) {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Login</h1>
-      <form
-        onSubmit={handleLogin}
-        style={{ display: "flex", flexDirection: "column", gap: "10px", width: "300px" }}
-      >
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button type="submit">Se connecter</button>
-      </form>
-      {message && <p>{message}</p>}
+    <div className="container d-flex vh-100 justify-content-center align-items-center">
+      <div className="card shadow p-4" style={{ width: "400px" }}>
+        <h2 className="text-center mb-4">🔐 Connexion</h2>
+
+        <form onSubmit={handleLogin}>
+          <div className="mb-3">
+            <label className="form-label">Adresse email</label>
+            <input
+              type="email"
+              className="form-control"
+              placeholder="exemple@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary w-100">
+            Se connecter
+          </button>
+        </form>
+
+        {message && (
+          <div
+            className={`alert mt-3 ${
+              message.includes("✅") ? "alert-success" : "alert-danger"
+            }`}
+          >
+            {message}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

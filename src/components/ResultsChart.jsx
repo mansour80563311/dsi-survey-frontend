@@ -1,3 +1,4 @@
+// ResultsChart.jsx
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -8,27 +9,23 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
+import { Alert } from "react-bootstrap";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 function ResultsChart({ question }) {
   if (question.type === "SCALE") {
     return (
-      <p>
-        Moyenne :{" "}
-        <strong>
-          {question.results.average
-            ? question.results.average.toFixed(2)
-            : "0"}
-        </strong>{" "}
+      <Alert variant="secondary">
+        Moyenne : <strong>{question.results.average ? question.results.average.toFixed(2) : "0"}</strong>{" "}
         (sur {question.results.count} réponses)
-      </p>
+      </Alert>
     );
   }
 
   if (question.type === "MULTIPLE") {
     if (!question.results || question.results.length === 0) {
-      return <p>Pas encore de réponses.</p>;
+      return <Alert variant="info">Pas encore de réponses.</Alert>;
     }
 
     const data = {
@@ -43,7 +40,7 @@ function ResultsChart({ question }) {
     };
 
     return (
-      <div style={{ maxWidth: "500px" }}>
+      <div style={{ maxWidth: "600px" }}>
         <Bar data={data} />
       </div>
     );
@@ -51,19 +48,21 @@ function ResultsChart({ question }) {
 
   if (question.type === "TEXT") {
     if (!question.results || question.results.length === 0) {
-      return <p>Pas encore de réponses.</p>;
+      return <Alert variant="info">Pas encore de réponses.</Alert>;
     }
 
     return (
-      <ul>
+      <ul className="list-group">
         {question.results.map((r) => (
-          <li key={r.id}>{r.answerString}</li>
+          <li key={r.id} className="list-group-item">
+            {r.answerString}
+          </li>
         ))}
       </ul>
     );
   }
 
-  return <p>Type de question inconnu</p>;
+  return <Alert variant="warning">Type de question inconnu</Alert>;
 }
 
 export default ResultsChart;

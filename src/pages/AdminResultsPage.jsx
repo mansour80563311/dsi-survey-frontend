@@ -1,6 +1,8 @@
+// AdminResultsPage.jsx
 import { useEffect, useState } from "react";
 import { getSurveyResults } from "../api/survey";
 import ResultsChart from "../components/ResultsChart";
+import { Container, Card, Spinner, Alert } from "react-bootstrap";
 
 function AdminResultsPage({ currentUser }) {
   const [surveys, setSurveys] = useState([]);
@@ -16,11 +18,9 @@ function AdminResultsPage({ currentUser }) {
 
     async function fetchAllResults() {
       try {
-        // Récupérer tous les sondages
         const res = await fetch("http://localhost:5000/api/surveys");
         const allSurveys = await res.json();
 
-        // Pour chaque sondage, récupérer ses résultats
         const surveysWithResults = await Promise.all(
           allSurveys.map(async (survey) => {
             try {
@@ -44,30 +44,45 @@ function AdminResultsPage({ currentUser }) {
     fetchAllResults();
   }, [currentUser]);
 
-  if (loading) return <p>Chargement...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading)
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-3">Chargement...</p>
+      </Container>
+    );
+  if (error)
+    return (
+      <Container className="py-5">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>📊 Tableau complet des résultats</h1>
-      {surveys.length === 0 && <p>Aucun sondage trouvé.</p>}
+    <Container className="w-50 py-5">
+      <h1 className="mb-4">📊 Tableau complet des résultats</h1>
+      {surveys.length === 0 && <Alert variant="info">Aucun sondage trouvé.</Alert>}
 
       {surveys.map((survey) => (
-        <div key={survey.id} style={{ marginBottom: "40px" }}>
-          <h2>{survey.title}</h2>
-          <p>{survey.description}</p>
+        <Card key={survey.id} className="mb-5 shadow-sm">
+          <Card.Body>
+            <Card.Title>{survey.title}</Card.Title>
+            <Card.Text className="text-muted">{survey.description}</Card.Text>
 
-          {survey.results.length === 0 && <p>Pas encore de résultats</p>}
+            {survey.results.length === 0 && <Alert variant="info">Pas encore de résultats</Alert>}
 
-          {survey.results.map((q) => (
-            <div key={q.questionId} style={{ marginBottom: "30px" }}>
-              <h3>{q.text}</h3>
-              <ResultsChart question={q} />
-            </div>
-          ))}
-        </div>
+            {survey.results.map((q) => (
+              <Card key={q.questionId} className="mb-4">
+                <Card.Body>
+                  <Card.Subtitle className="mb-3">{q.text}</Card.Subtitle>
+                  <ResultsChart question={q} />
+                </Card.Body>
+              </Card>
+            ))}
+          </Card.Body>
+        </Card>
       ))}
-    </div>
+    </Container>
   );
 }
 
