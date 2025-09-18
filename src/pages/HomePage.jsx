@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
 import { getSurveys } from "../api/survey";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import '../styles/global.css';
 
-function HomePage() {
+function HomePage({ currentUser }) {
   const [surveys, setSurveys] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getSurveys().then(setSurveys);
   }, []);
+
+  const handleClick = (surveyId) => {
+    if (!currentUser) {
+      // Non connecté → vers login
+      navigate("/login");
+    } else if (currentUser.role === "admin") {
+      // Admin → voir les résultats
+      navigate(`/survey/${surveyId}/results`);
+    } else {
+      // Utilisateur normal → répondre au sondage
+      navigate(`/survey/${surveyId}`);
+    }
+  };
 
   return (
     <div className="container py-4">
@@ -26,12 +40,15 @@ function HomePage() {
                   <p className="card-text text-muted">
                     {survey.description || "Pas de description."}
                   </p>
-                  <Link
-                    to={`/survey/${survey.id}`}
+                  <p className="text-muted small">
+                    📅 Créé le {new Date(survey.createdAt).toLocaleDateString("fr-FR")}
+                  </p>
+                  <button
                     className="btn btn-primary mt-auto"
+                    onClick={() => handleClick(survey.id)}
                   >
-                    ➡️ Répondre
-                  </Link>
+                    ➡️ {currentUser?.role === "admin" ? "Voir résultats" : "Répondre"}
+                  </button>
                 </div>
               </div>
             </div>

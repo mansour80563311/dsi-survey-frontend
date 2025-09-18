@@ -12,6 +12,12 @@ function CreateSurveyPage() {
     setQuestions([...questions, { text: "", type: "TEXT", options: [] }]);
   };
 
+  const handleRemoveQuestion = (index) => {
+    const updated = [...questions];
+    updated.splice(index, 1);
+    setQuestions(updated);
+  };
+
   const handleChangeQuestion = (index, field, value) => {
     const updated = [...questions];
     updated[index][field] = value;
@@ -35,8 +41,24 @@ function CreateSurveyPage() {
     setQuestions(updated);
   };
 
+  const handleRemoveOption = (qIndex, oIndex) => {
+    const updated = [...questions];
+    updated[qIndex].options.splice(oIndex, 1);
+    setQuestions(updated);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Validation côté JS
+    if (!title.trim()) {
+      alert("⚠️ Le titre est obligatoire !");
+      return;
+    }
+    if (questions.some((q) => !q.text.trim())) {
+      alert("⚠️ Toutes les questions doivent avoir un texte !");
+      return;
+    }
 
     const surveyData = { title, description, questions };
     console.log("Envoi surveyData :", surveyData);
@@ -84,7 +106,14 @@ function CreateSurveyPage() {
           {/* Questions */}
           <h4 className="mt-4">Questions</h4>
           {questions.map((q, i) => (
-            <div key={i} className="card p-3 mb-3 border">
+            <div key={i} className="card p-3 mb-3 border position-relative">
+              {/* Supprimer la question */}
+              <button
+                type="button"
+                className="btn-close position-absolute top-0 end-0 m-2"
+                onClick={() => handleRemoveQuestion(i)}
+              ></button>
+
               <div className="mb-3">
                 <label className="form-label">Texte de la question</label>
                 <input
@@ -95,7 +124,6 @@ function CreateSurveyPage() {
                   onChange={(e) =>
                     handleChangeQuestion(i, "text", e.target.value)
                   }
-                  required
                 />
               </div>
 
@@ -118,17 +146,24 @@ function CreateSurveyPage() {
                 <div>
                   <h6>Options</h6>
                   {q.options.map((opt, j) => (
-                    <input
-                      key={j}
-                      type="text"
-                      className="form-control mb-2"
-                      placeholder={`Option ${j + 1}`}
-                      value={opt}
-                      onChange={(e) =>
-                        handleChangeOption(i, j, e.target.value)
-                      }
-                      required
-                    />
+                    <div key={j} className="input-group mb-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={`Option ${j + 1}`}
+                        value={opt}
+                        onChange={(e) =>
+                          handleChangeOption(i, j, e.target.value)
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => handleRemoveOption(i, j)}
+                      >
+                        ❌
+                      </button>
+                    </div>
                   ))}
                   <button
                     type="button"

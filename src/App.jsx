@@ -22,7 +22,7 @@ function App() {
       <Navbar currentUser={currentUser} setCurrentUser={setCurrentUser} />
       <Routes>
         {/* Pages publiques */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePage currentUser={currentUser}/>} />
         <Route path="/login" element={<LoginPage setCurrentUser={setCurrentUser} />} />
 
         {/* Accessible à tous les users connectés */}
